@@ -307,15 +307,15 @@
   .ticker-flag.aud { background: rgba(0,200,100,0.18); }
 
   .ticker-info { display: flex; flex-direction: column; gap: 2px; }
-  .ticker-label  { font-size: clamp(9px,0.7vw,11px); font-family: 'Space Mono',monospace; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; }
-  .ticker-price  { font-size: clamp(14px,1.6vw,22px); font-weight: 700; color: var(--text); font-family: 'Space Mono',monospace; letter-spacing: -0.5px; }
-  .ticker-change { font-size: clamp(10px,0.9vw,13px); font-family: 'Space Mono',monospace; }
+  .ticker-label  { font-size: clamp(11px,0.85vw,13px); font-family: 'Space Mono',monospace; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; }
+  .ticker-price  { font-size: clamp(16px,1.8vw,24px); font-weight: 700; color: var(--text); font-family: 'Space Mono',monospace; letter-spacing: -0.5px; }
+  .ticker-change { font-size: clamp(12px,1vw,14px); font-family: 'Space Mono',monospace; }
   .ticker-change.up   { color: var(--green); }
   .ticker-change.down { color: var(--red); }
 
   .ticker-live {
     display: flex; align-items: center; gap: 6px;
-    font-size: clamp(9px,0.8vw,12px); font-family: 'Space Mono',monospace;
+    font-size: clamp(11px,0.95vw,14px); font-family: 'Space Mono',monospace;
     color: var(--green); letter-spacing: 1px; margin-left: auto; padding-left: 12px; flex-shrink: 0;
   }
   .ticker-dot {
@@ -356,8 +356,8 @@
     transition: background 0.35s, box-shadow 0.35s;
   }
 
-  header h1 { font-size: clamp(18px,2.2vw,28px); font-weight: 800; letter-spacing: -0.5px; color: var(--text); }
-  header p  { font-size: clamp(10px,0.9vw,13px); color: var(--label); font-family: 'Space Mono',monospace; margin-top: 2px; }
+  header h1 { font-size: clamp(22px,2.6vw,34px); font-weight: 800; letter-spacing: -0.5px; color: var(--text); }
+  header p  { font-size: clamp(12px,1vw,15px); color: var(--label); font-family: 'Space Mono',monospace; margin-top: 2px; }
 
   /* header-right holds both buttons */
   .header-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
@@ -377,7 +377,7 @@
   .theme-select-wrap select {
     background: transparent; border: none; outline: none;
     color: var(--label); font-family: 'Space Mono',monospace;
-    font-size: clamp(10px,0.9vw,12px); letter-spacing: 1px;
+    font-size: clamp(11px,1vw,13px); letter-spacing: 1px;
     text-transform: uppercase; cursor: pointer;
     appearance: none; -webkit-appearance: none;
     padding: 0; width: auto;
@@ -392,7 +392,7 @@
     padding: clamp(6px,0.7vh,9px) clamp(12px,1.2vw,18px);
     border: 1px solid var(--card-border); border-radius: 20px;
     background: transparent; color: var(--label);
-    font-family: 'Space Mono',monospace; font-size: clamp(10px,0.9vw,12px);
+    font-family: 'Space Mono',monospace; font-size: clamp(11px,1vw,13px);
     letter-spacing: 1px; text-transform: uppercase;
     cursor: pointer; transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
   }
@@ -418,7 +418,7 @@
   .card:hover { border-color: var(--card-hover); }
 
   .card-title {
-    font-size: clamp(11px,0.9vw,13px); font-family: 'Space Mono',monospace;
+    font-size: clamp(12px,1vw,15px); font-family: 'Space Mono',monospace;
     color: var(--accent); letter-spacing: 2px;
     text-transform: uppercase; font-weight: 700;
     margin-bottom: clamp(12px,1.5vh,18px);
@@ -432,7 +432,7 @@
   .field:last-child { margin-bottom: 0; }
 
   label {
-    font-size: clamp(10px,0.8vw,12px); font-family: 'Space Mono',monospace;
+    font-size: clamp(11px,0.9vw,13px); font-family: 'Space Mono',monospace;
     color: var(--label); letter-spacing: 1.5px; text-transform: uppercase;
     transition: color 0.35s;
   }
@@ -446,8 +446,8 @@
   .input-wrap:focus-within { border-color: var(--input-focus); }
 
   .input-pre, .input-suf {
-    padding: clamp(8px,1vh,11px) clamp(9px,0.9vw,13px);
-    font-family: 'Space Mono',monospace; font-size: clamp(13px,1.1vw,15px);
+    padding: clamp(8px,1vh,12px) clamp(10px,1vw,14px);
+    font-family: 'Space Mono',monospace; font-size: clamp(14px,1.2vw,17px);
     color: var(--accent); background: var(--input-pre-bg);
     border-right: 1px solid var(--input-border); flex-shrink: 0;
     transition: color 0.35s, background 0.35s;
@@ -457,8 +457,8 @@
   input[type="number"] {
     flex: 1; min-width: 0; background: transparent; border: none; outline: none;
     color: var(--text); font-family: 'Space Mono',monospace;
-    font-size: clamp(13px,1.1vw,16px);
-    padding: clamp(8px,1vh,11px) clamp(9px,0.9vw,13px); width: 100%;
+    font-size: clamp(15px,1.3vw,18px);
+    padding: clamp(8px,1vh,12px) clamp(10px,1vw,14px); width: 100%;
     transition: color 0.35s;
   }
   input[type="number"]::-webkit-inner-spin-button { opacity: 0.3; }
@@ -469,7 +469,7 @@
     cursor: pointer;
     padding: clamp(8px,1vh,11px) clamp(28px,2.5vw,36px) clamp(8px,1vh,11px) clamp(9px,0.9vw,13px);
     appearance: none; -webkit-appearance: none;
-    font-family: 'Space Mono',monospace; font-size: clamp(12px,1vw,15px);
+    font-family: 'Space Mono',monospace; font-size: clamp(13px,1.1vw,16px);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23F7931A' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
     background-repeat: no-repeat; background-position: right 10px center;
     outline: none; transition: border-color 0.2s, background 0.35s, color 0.35s;
@@ -483,9 +483,9 @@
     border-radius: 7px; padding: clamp(10px,1.2vh,14px) clamp(12px,1.2vw,16px); margin-top: 5px;
     transition: background 0.35s, border-color 0.35s;
   }
-  .stat-box .stat-label { font-size: clamp(10px,0.8vw,12px); color: var(--label); font-family: 'Space Mono',monospace; }
-  .stat-box .stat-val   { font-size: clamp(20px,2vw,28px); font-weight: 700; color: var(--accent); margin-top: 2px; transition: color 0.35s; }
-  .stat-box .stat-val.white { color: var(--text); font-size: clamp(16px,1.6vw,22px); }
+  .stat-box .stat-label { font-size: clamp(11px,0.9vw,13px); color: var(--label); font-family: 'Space Mono',monospace; }
+  .stat-box .stat-val   { font-size: clamp(22px,2.2vw,32px); font-weight: 700; color: var(--accent); margin-top: 2px; transition: color 0.35s; }
+  .stat-box .stat-val.white { color: var(--text); font-size: clamp(18px,1.8vw,26px); }
 
   .use-live-btn {
     display: inline-flex; align-items: center; gap: 5px;
@@ -508,11 +508,11 @@
   }
   .milestone:hover { border-color: var(--card-hover); transform: translateY(-2px); }
   .milestone:last-child { margin-bottom: 0; }
-  .m-year  { font-size: clamp(10px,0.8vw,13px); color: var(--label); font-family: 'Space Mono',monospace; }
-  .m-val   { font-size: clamp(18px,1.8vw,26px); font-weight: 700; color: var(--accent); margin-top: 2px; transition: color 0.35s; }
+  .m-year  { font-size: clamp(11px,0.9vw,14px); color: var(--label); font-family: 'Space Mono',monospace; }
+  .m-val   { font-size: clamp(20px,2vw,28px); font-weight: 700; color: var(--accent); margin-top: 2px; transition: color 0.35s; }
   .m-right { text-align: right; flex-shrink: 0; }
-  .m-btc   { font-size: clamp(12px,1.1vw,16px); font-weight: 600; color: var(--text-sub); font-family: 'Space Mono',monospace; }
-  .m-price { font-size: clamp(10px,0.8vw,12px); color: var(--text-muted); font-family: 'Space Mono',monospace; margin-top: 2px; }
+  .m-btc   { font-size: clamp(13px,1.2vw,17px); font-weight: 600; color: var(--text-sub); font-family: 'Space Mono',monospace; }
+  .m-price { font-size: clamp(11px,0.9vw,13px); color: var(--text-muted); font-family: 'Space Mono',monospace; margin-top: 2px; }
 
   /* ── CHART CARDS ── */
   .chart-card {
@@ -524,12 +524,12 @@
   .chart-card:hover { border-color: var(--card-hover); }
 
   .chart-title {
-    font-size: clamp(11px,0.9vw,13px); font-family: 'Space Mono',monospace;
+    font-size: clamp(13px,1.1vw,16px); font-family: 'Space Mono',monospace;
     color: var(--text); letter-spacing: 2px; text-transform: uppercase;
     font-weight: 700; margin-bottom: 3px;
   }
   .chart-sub {
-    font-size: clamp(10px,0.8vw,12px); font-family: 'Space Mono',monospace;
+    font-size: clamp(11px,0.9vw,13px); font-family: 'Space Mono',monospace;
     color: var(--text-muted); margin-bottom: clamp(12px,1.5vh,18px); line-height: 1.5;
   }
 
@@ -539,13 +539,13 @@
 
   /* ── TABLE ── */
   .table-wrap { overflow-x: auto; width: 100%; }
-  table { width: 100%; border-collapse: collapse; font-family: 'Space Mono',monospace; font-size: clamp(11px,0.9vw,14px); }
+  table { width: 100%; border-collapse: collapse; font-family: 'Space Mono',monospace; font-size: clamp(12px,1vw,15px); }
   thead tr { border-bottom: 1px solid var(--card-border); }
   th {
     text-align: left; padding: clamp(8px,1vh,11px) clamp(8px,1vw,14px);
     color: var(--accent); font-weight: 700;
     letter-spacing: 1px; text-transform: uppercase;
-    font-size: clamp(10px,0.8vw,12px); white-space: nowrap;
+    font-size: clamp(11px,0.9vw,13px); white-space: nowrap;
     transition: color 0.35s;
   }
   td { padding: clamp(7px,0.9vh,10px) clamp(8px,1vw,14px); border-bottom: 1px solid var(--row-div); white-space: nowrap; color: var(--text-sub); }
@@ -571,7 +571,7 @@
     padding: clamp(6px,0.7vh,9px) clamp(10px,1vw,16px);
     background: transparent; border: none; outline: none;
     color: var(--label); font-family: 'Space Mono',monospace;
-    font-size: clamp(10px,0.9vw,12px); letter-spacing: 1px;
+    font-size: clamp(11px,1vw,13px); letter-spacing: 1px;
     text-transform: uppercase; cursor: pointer;
     transition: background 0.2s, color 0.2s;
     white-space: nowrap;
@@ -602,7 +602,7 @@
   ::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 2px; }
 </style>
 </head>
-<body data-theme="light">
+<body data-theme="digital">
 <div class="wrapper">
 
   <!-- LIVE TICKER BAR -->
@@ -802,6 +802,9 @@
     currency = cur;
     document.getElementById('btnUSD').classList.toggle('active', cur === 'USD');
     document.getElementById('btnAUD').classList.toggle('active', cur === 'AUD');
+    // Refresh DCA label to show updated currency
+    const freq = document.getElementById('freq').value;
+    if (freq !== 'none') document.getElementById('dcaLabel').textContent = dcaLabelText(freq);
     updatePriceStatusBox();
     recalc();
   }
@@ -831,7 +834,11 @@
 
       const cc  = v => v >= 0 ? 'up' : 'down';
       const ar  = v => v >= 0 ? '▲' : '▼';
-      const now = new Date().toLocaleTimeString('en-AU', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+      // Build time string with timezone abbreviation
+      const tzName = new Intl.DateTimeFormat('en-AU', { timeZoneName: 'short' })
+        .formatToParts(new Date())
+        .find(p => p.type === 'timeZoneName')?.value || '';
+      const now = new Date().toLocaleTimeString('en-AU', { hour:'2-digit', minute:'2-digit', second:'2-digit' }) + ' ' + tzName;
       const audPerUsd = b.aud / b.usd;
 
       bar.innerHTML = `
@@ -924,13 +931,20 @@
   }
 
   /* ── DCA toggle ── */
+  function dcaLabelText(freq) {
+    const cur = fiatLabel();
+    if (freq === 'weekly')  return `Amount per Week (${cur})`;
+    if (freq === 'monthly') return `Amount per Month (${cur})`;
+    return '';
+  }
+
   function toggleDCA() {
     const freq    = document.getElementById('freq').value;
     const wrap    = document.getElementById('dcaAmountWrap');
     const statBox = document.getElementById('dcaStatBox');
     const label   = document.getElementById('dcaLabel');
     if (freq === 'none') { wrap.style.display = 'none'; statBox.style.display = 'none'; }
-    else { wrap.style.display = 'flex'; statBox.style.display = 'block'; label.textContent = freq === 'weekly' ? 'Amount per Week' : 'Amount per Month'; }
+    else { wrap.style.display = 'flex'; statBox.style.display = 'block'; label.textContent = dcaLabelText(freq); }
     recalc();
   }
 
@@ -986,6 +1000,7 @@
     if (freq !== 'none') {
       const annual = freq === 'weekly' ? dcaAmt * 52 : dcaAmt * 12;
       document.getElementById('annualDCA').textContent = fmtC(annual) + ' / yr';
+      document.getElementById('dcaLabel').textContent = dcaLabelText(freq);
     }
 
     const freqLabel = freq === 'weekly'  ? `weekly DCA of ${fmtC(dcaAmt)} — each purchase at that week's price`
@@ -1023,8 +1038,8 @@
         }
       },
       scales: {
-        x: { grid: { color: t.gridLine }, ticks: { color: t.tick, font: { family: 'Space Mono, monospace', size: 11 }, maxTicksLimit: 10 } },
-        y: { grid: { color: t.gridLine }, ticks: { color: t.tick, font: { family: 'Space Mono, monospace', size: 11 }, callback: fmtFn } }
+        x: { grid: { color: t.gridLine }, ticks: { color: t.tick, font: { family: 'Space Mono, monospace', size: 12 }, maxTicksLimit: 10 } },
+        y: { grid: { color: t.gridLine }, ticks: { color: t.tick, font: { family: 'Space Mono, monospace', size: 12 }, callback: fmtFn } }
       }
     };
   }
@@ -1132,8 +1147,8 @@
   }
 
   /* ── Boot ── */
-  // Restore saved theme, defaulting to light
-  const savedTheme = localStorage.getItem('btc-theme') || 'light';
+  // Restore saved theme, defaulting to digital
+  const savedTheme = localStorage.getItem('btc-theme') || 'digital';
   document.body.setAttribute('data-theme', savedTheme);
   document.getElementById('themeSelect').value = savedTheme;
   currentTheme = savedTheme;
