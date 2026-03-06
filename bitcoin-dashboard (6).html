@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bitcoin Portfolio Tracker</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ════════════════════════════════════════
+     THEME DEFINITIONS
+     Each [data-theme] sets the CSS custom properties
+     that all components reference.
+  ════════════════════════════════════════ */
+
+  /* DIGITAL — dark charcoal / orange accent (original) */
+  :root, [data-theme="digital"] {
+    --accent:       #F7931A;
+    --accent2:      #FFD700;
+    --accent-rgb:   247,147,26;
+    --accent2-rgb:  255,215,0;
+    --bg:           #0d0d0d;
+    --bg2:          #111111;
+    --ticker-bg:    rgba(0,0,0,0.65);
+    --card-bg:      rgba(255,255,255,0.03);
+    --card-border:  rgba(247,147,26,0.22);
+    --card-hover:   rgba(247,147,26,0.55);
+    --text:         #ffffff;
+    --text-sub:     #aaaaaa;
+    --text-muted:   #555555;
+    --label:        #777777;
+    --input-bg:     rgba(255,255,255,0.04);
+    --input-border: rgba(247,147,26,0.25);
+    --input-focus:  rgba(247,147,26,0.6);
+    --input-pre-bg: rgba(247,147,26,0.08);
+    --stat-bg:      rgba(247,147,26,0.07);
+    --stat-border:  rgba(247,147,26,0.2);
+    --grid-line:    rgba(255,255,255,0.025);
+    --ticker-sep:   rgba(255,255,255,0.07);
+    --row-div:      rgba(255,255,255,0.04);
+    --row-hover:    rgba(247,147,26,0.05);
+    --chart-grid:   rgba(255,255,255,0.04);
+    --chart-tick:   #4a4a4a;
+    --tooltip-bg:   #111111;
+    --scrollbar:    rgba(247,147,26,0.3);
+    --green:        #00e676;
+    --red:          #ff4757;
+  }
+
+  /* BITCOIN — pure Bitcoin orange on black, gold accents */
+  [data-theme="bitcoin"] {
+    --accent:       #F7931A;
+    --accent2:      #FF6B00;
+    --accent-rgb:   247,147,26;
+    --accent2-rgb:  255,107,0;
+    --bg:           #0a0500;
+    --bg2:          #120800;
+    --ticker-bg:    rgba(10,5,0,0.9);
+    --card-bg:      rgba(247,147,26,0.06);
+    --card-border:  rgba(247,147,26,0.35);
+    --card-hover:   rgba(247,147,26,0.7);
+    --text:         #fff8f0;
+    --text-sub:     #cc8844;
+    --text-muted:   #664422;
+    --label:        #996633;
+    --input-bg:     rgba(247,147,26,0.08);
+    --input-border: rgba(247,147,26,0.4);
+    --input-focus:  rgba(247,147,26,0.8);
+    --input-pre-bg: rgba(247,147,26,0.15);
+    --stat-bg:      rgba(247,147,26,0.12);
+    --stat-border:  rgba(247,147,26,0.4);
+    --grid-line:    rgba(247,147,26,0.05);
+    --ticker-sep:   rgba(247,147,26,0.15);
+    --row-div:      rgba(247,147,26,0.08);
+    --row-hover:    rgba(247,147,26,0.1);
+    --chart-grid:   rgba(247,147,26,0.06);
+    --chart-tick:   #885522;
+    --tooltip-bg:   #0a0500;
+    --scrollbar:    rgba(247,147,26,0.5);
+    --green:        #ffaa44;
+    --red:          #ff4422;
+  }
+
+  /* LIGHT — clean white / slate */
+  [data-theme="light"] {
+    --accent:       #e67e00;
+    --accent2:      #c45d00;
+    --accent-rgb:   230,126,0;
+    --accent2-rgb:  196,93,0;
+    --bg:           #f5f5f0;
+    --bg2:          #eeeeea;
+    --ticker-bg:    rgba(255,255,255,0.95);
+    --card-bg:      rgba(255,255,255,0.85);
+    --card-border:  rgba(230,126,0,0.2);
+    --card-hover:   rgba(230,126,0,0.5);
+    --text:         #1a1a1a;
+    --text-sub:     #444444;
+    --text-muted:   #999999;
+    --label:        #666666;
+    --input-bg:     rgba(255,255,255,0.9);
+    --input-border: rgba(230,126,0,0.3);
+    --input-focus:  rgba(230,126,0,0.6);
+    --input-pre-bg: rgba(230,126,0,0.08);
+    --stat-bg:      rgba(230,126,0,0.07);
+    --stat-border:  rgba(230,126,0,0.2);
+    --grid-line:    rgba(0,0,0,0.03);
+    --ticker-sep:   rgba(0,0,0,0.08);
+    --row-div:      rgba(0,0,0,0.05);
+    --row-hover:    rgba(230,126,0,0.05);
+    --chart-grid:   rgba(0,0,0,0.06);
+    --chart-tick:   #888888;
+    --tooltip-bg:   #ffffff;
+    --scrollbar:    rgba(230,126,0,0.3);
+    --green:        #2da44e;
+    --red:          #cf222e;
+  }
+
+  /* DARK — deep navy, blue/cyan accents */
+  [data-theme="dark"] {
+    --accent:       #4fc3f7;
+    --accent2:      #00e5ff;
+    --accent-rgb:   79,195,247;
+    --accent2-rgb:  0,229,255;
+    --bg:           #050d1a;
+    --bg2:          #081020;
+    --ticker-bg:    rgba(5,13,26,0.9);
+    --card-bg:      rgba(79,195,247,0.04);
+    --card-border:  rgba(79,195,247,0.18);
+    --card-hover:   rgba(79,195,247,0.45);
+    --text:         #e8f4fd;
+    --text-sub:     #90caf9;
+    --text-muted:   #2a4a6a;
+    --label:        #5588aa;
+    --input-bg:     rgba(79,195,247,0.05);
+    --input-border: rgba(79,195,247,0.2);
+    --input-focus:  rgba(79,195,247,0.55);
+    --input-pre-bg: rgba(79,195,247,0.08);
+    --stat-bg:      rgba(79,195,247,0.07);
+    --stat-border:  rgba(79,195,247,0.2);
+    --grid-line:    rgba(79,195,247,0.025);
+    --ticker-sep:   rgba(79,195,247,0.1);
+    --row-div:      rgba(79,195,247,0.06);
+    --row-hover:    rgba(79,195,247,0.06);
+    --chart-grid:   rgba(79,195,247,0.05);
+    --chart-tick:   #2a5570;
+    --tooltip-bg:   #050d1a;
+    --scrollbar:    rgba(79,195,247,0.3);
+    --green:        #00e676;
+    --red:          #ff5252;
+  }
+
+  /* MATRIX — green on black terminal */
+  [data-theme="matrix"] {
+    --accent:       #00ff41;
+    --accent2:      #00cc33;
+    --accent-rgb:   0,255,65;
+    --accent2-rgb:  0,204,51;
+    --bg:           #000300;
+    --bg2:          #010500;
+    --ticker-bg:    rgba(0,3,0,0.95);
+    --card-bg:      rgba(0,255,65,0.04);
+    --card-border:  rgba(0,255,65,0.2);
+    --card-hover:   rgba(0,255,65,0.5);
+    --text:         #00ff41;
+    --text-sub:     #00cc33;
+    --text-muted:   #005510;
+    --label:        #008820;
+    --input-bg:     rgba(0,255,65,0.05);
+    --input-border: rgba(0,255,65,0.25);
+    --input-focus:  rgba(0,255,65,0.6);
+    --input-pre-bg: rgba(0,255,65,0.08);
+    --stat-bg:      rgba(0,255,65,0.07);
+    --stat-border:  rgba(0,255,65,0.2);
+    --grid-line:    rgba(0,255,65,0.03);
+    --ticker-sep:   rgba(0,255,65,0.1);
+    --row-div:      rgba(0,255,65,0.07);
+    --row-hover:    rgba(0,255,65,0.07);
+    --chart-grid:   rgba(0,255,65,0.06);
+    --chart-tick:   #006615;
+    --tooltip-bg:   #000300;
+    --scrollbar:    rgba(0,255,65,0.4);
+    --green:        #00ff41;
+    --red:          #ff3311;
+  }
+
+  /* MIDNIGHT PURPLE — deep purple, violet accents */
+  [data-theme="purple"] {
+    --accent:       #bb86fc;
+    --accent2:      #ff79c6;
+    --accent-rgb:   187,134,252;
+    --accent2-rgb:  255,121,198;
+    --bg:           #0d0717;
+    --bg2:          #100920;
+    --ticker-bg:    rgba(13,7,23,0.9);
+    --card-bg:      rgba(187,134,252,0.05);
+    --card-border:  rgba(187,134,252,0.2);
+    --card-hover:   rgba(187,134,252,0.5);
+    --text:         #f0e6ff;
+    --text-sub:     #cc99ff;
+    --text-muted:   #3d2060;
+    --label:        #7755aa;
+    --input-bg:     rgba(187,134,252,0.06);
+    --input-border: rgba(187,134,252,0.25);
+    --input-focus:  rgba(187,134,252,0.6);
+    --input-pre-bg: rgba(187,134,252,0.1);
+    --stat-bg:      rgba(187,134,252,0.08);
+    --stat-border:  rgba(187,134,252,0.25);
+    --grid-line:    rgba(187,134,252,0.03);
+    --ticker-sep:   rgba(187,134,252,0.1);
+    --row-div:      rgba(187,134,252,0.06);
+    --row-hover:    rgba(187,134,252,0.07);
+    --chart-grid:   rgba(187,134,252,0.05);
+    --chart-tick:   #4d2a80;
+    --tooltip-bg:   #0d0717;
+    --scrollbar:    rgba(187,134,252,0.35);
+    --green:        #50fa7b;
+    --red:          #ff5555;
+  }
+
+  /* GOLD / LUXURY — warm cream, deep gold */
+  [data-theme="gold"] {
+    --accent:       #c9a84c;
+    --accent2:      #e8c878;
+    --accent-rgb:   201,168,76;
+    --accent2-rgb:  232,200,120;
+    --bg:           #0e0c08;
+    --bg2:          #151009;
+    --ticker-bg:    rgba(14,12,8,0.95);
+    --card-bg:      rgba(201,168,76,0.05);
+    --card-border:  rgba(201,168,76,0.22);
+    --card-hover:   rgba(201,168,76,0.5);
+    --text:         #f5edd8;
+    --text-sub:     #c8b080;
+    --text-muted:   #4a3e1e;
+    --label:        #7a6030;
+    --input-bg:     rgba(201,168,76,0.06);
+    --input-border: rgba(201,168,76,0.25);
+    --input-focus:  rgba(201,168,76,0.6);
+    --input-pre-bg: rgba(201,168,76,0.1);
+    --stat-bg:      rgba(201,168,76,0.08);
+    --stat-border:  rgba(201,168,76,0.25);
+    --grid-line:    rgba(201,168,76,0.03);
+    --ticker-sep:   rgba(201,168,76,0.12);
+    --row-div:      rgba(201,168,76,0.07);
+    --row-hover:    rgba(201,168,76,0.08);
+    --chart-grid:   rgba(201,168,76,0.05);
+    --chart-tick:   #5a4820;
+    --tooltip-bg:   #0e0c08;
+    --scrollbar:    rgba(201,168,76,0.35);
+    --green:        #7dbb5e;
+    --red:          #cc4433;
+  }
+
+  /* ════════════════════════════
+     BASE STYLES (use CSS vars)
+  ════════════════════════════ */
+  html, body { height: 100%; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    transition: background 0.35s, color 0.35s;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none; z-index: 0;
+  }
+
+  .wrapper { position: relative; z-index: 1; }
+
+  /* ── TICKER BAR ── */
+  .ticker-bar {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 0;
+    padding: 0 clamp(12px,2.5vw,32px);
+    background: var(--ticker-bg);
+    border-bottom: 1px solid var(--card-border);
+    min-height: 70px; overflow: hidden;
+    transition: background 0.35s, border-color 0.35s;
+  }
+
+  .ticker-item {
+    display: flex; align-items: center;
+    gap: clamp(8px,1vw,16px);
+    padding: clamp(10px,1.2vh,16px) clamp(12px,1.5vw,28px) clamp(10px,1.2vh,16px) 0;
+    margin-right: clamp(12px,1.5vw,28px);
+    border-right: 1px solid var(--ticker-sep);
+    flex-shrink: 0;
+  }
+  .ticker-item:last-of-type { border-right: none; margin-right: 0; }
+
+  .ticker-flag {
+    width: clamp(24px,2.5vw,38px); height: clamp(24px,2.5vw,38px);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: clamp(13px,1.5vw,20px); flex-shrink: 0;
+  }
+  .ticker-flag.usd { background: rgba(60,120,255,0.18); }
+  .ticker-flag.aud { background: rgba(0,200,100,0.18); }
+
+  .ticker-info { display: flex; flex-direction: column; gap: 2px; }
+  .ticker-label  { font-size: clamp(9px,0.7vw,11px); font-family: 'Space Mono',monospace; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; }
+  .ticker-price  { font-size: clamp(14px,1.6vw,22px); font-weight: 700; color: var(--text); font-family: 'Space Mono',monospace; letter-spacing: -0.5px; }
+  .ticker-change { font-size: clamp(10px,0.9vw,13px); font-family: 'Space Mono',monospace; }
+  .ticker-change.up   { color: var(--green); }
+  .ticker-change.down { color: var(--red); }
+
+  .ticker-live {
+    display: flex; align-items: center; gap: 6px;
+    font-size: clamp(9px,0.8vw,12px); font-family: 'Space Mono',monospace;
+    color: var(--green); letter-spacing: 1px; margin-left: auto; padding-left: 12px; flex-shrink: 0;
+  }
+  .ticker-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--green); box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s infinite; flex-shrink: 0;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.75)} }
+
+  .ticker-loading {
+    font-size: clamp(11px,1vw,14px); font-family: 'Space Mono',monospace; color: var(--text-muted);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .spinner {
+    width: 15px; height: 15px;
+    border: 2px solid rgba(var(--accent-rgb),0.2);
+    border-top-color: var(--accent);
+    border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── HEADER ── */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px;
+    padding: clamp(14px,2vh,22px) clamp(12px,2.5vw,32px) 0;
+  }
+
+  .header-left { display: flex; align-items: center; gap: clamp(10px,1.2vw,16px); }
+
+  .logo {
+    width: clamp(36px,4vw,52px); height: clamp(36px,4vw,52px);
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: clamp(18px,2vw,26px);
+    box-shadow: 0 0 22px rgba(var(--accent-rgb),0.4); flex-shrink: 0;
+    transition: background 0.35s, box-shadow 0.35s;
+  }
+
+  header h1 { font-size: clamp(18px,2.2vw,28px); font-weight: 800; letter-spacing: -0.5px; color: var(--text); }
+  header p  { font-size: clamp(10px,0.9vw,13px); color: var(--label); font-family: 'Space Mono',monospace; margin-top: 2px; }
+
+  /* header-right holds both buttons */
+  .header-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+  /* ── THEME SELECTOR ── */
+  .theme-select-wrap {
+    display: flex; align-items: center; gap: 7px;
+    padding: clamp(6px,0.7vh,9px) clamp(12px,1.2vw,16px);
+    border: 1px solid var(--card-border); border-radius: 20px;
+    background: var(--input-bg);
+    transition: border-color 0.2s, background 0.35s;
+  }
+  .theme-select-wrap:hover { border-color: var(--accent); }
+
+  .theme-icon { font-size: 14px; flex-shrink: 0; }
+
+  .theme-select-wrap select {
+    background: transparent; border: none; outline: none;
+    color: var(--label); font-family: 'Space Mono',monospace;
+    font-size: clamp(10px,0.9vw,12px); letter-spacing: 1px;
+    text-transform: uppercase; cursor: pointer;
+    appearance: none; -webkit-appearance: none;
+    padding: 0; width: auto;
+    transition: color 0.2s;
+  }
+  .theme-select-wrap select:hover,
+  .theme-select-wrap select:focus { color: var(--accent); }
+  .theme-select-wrap select option { background: #1a1a1a; color: #fff; }
+
+  .refresh-btn {
+    display: flex; align-items: center; gap: 7px;
+    padding: clamp(6px,0.7vh,9px) clamp(12px,1.2vw,18px);
+    border: 1px solid var(--card-border); border-radius: 20px;
+    background: transparent; color: var(--label);
+    font-family: 'Space Mono',monospace; font-size: clamp(10px,0.9vw,12px);
+    letter-spacing: 1px; text-transform: uppercase;
+    cursor: pointer; transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
+  }
+  .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .refresh-btn svg { width: clamp(11px,1vw,14px); height: clamp(11px,1vw,14px); flex-shrink: 0; }
+
+  /* ── MAIN GRID ── */
+  .grid {
+    display: grid;
+    grid-template-columns: clamp(280px, 28vw, 400px) minmax(0, 1fr);
+    gap: clamp(12px, 1.5vw, 22px);
+    padding: clamp(12px,1.5vh,20px) clamp(12px,2.5vw,32px) clamp(24px,4vh,40px);
+  }
+  @media (max-width: 860px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+  .left, .right { min-width: 0; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    border-radius: 12px; padding: clamp(14px,1.8vw,24px);
+    transition: border-color 0.2s, background 0.35s;
+  }
+  .card:hover { border-color: var(--card-hover); }
+
+  .card-title {
+    font-size: clamp(11px,0.9vw,13px); font-family: 'Space Mono',monospace;
+    color: var(--accent); letter-spacing: 2px;
+    text-transform: uppercase; font-weight: 700;
+    margin-bottom: clamp(12px,1.5vh,18px);
+    transition: color 0.35s;
+  }
+
+  .left  { display: flex; flex-direction: column; gap: clamp(10px,1.2vh,16px); }
+  .right { display: flex; flex-direction: column; gap: clamp(12px,1.5vh,18px); }
+
+  .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: clamp(10px,1.2vh,14px); }
+  .field:last-child { margin-bottom: 0; }
+
+  label {
+    font-size: clamp(10px,0.8vw,12px); font-family: 'Space Mono',monospace;
+    color: var(--label); letter-spacing: 1.5px; text-transform: uppercase;
+    transition: color 0.35s;
+  }
+
+  .input-wrap {
+    display: flex; align-items: center;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 7px; overflow: hidden; transition: border-color 0.2s, background 0.35s;
+  }
+  .input-wrap:focus-within { border-color: var(--input-focus); }
+
+  .input-pre, .input-suf {
+    padding: clamp(8px,1vh,11px) clamp(9px,0.9vw,13px);
+    font-family: 'Space Mono',monospace; font-size: clamp(13px,1.1vw,15px);
+    color: var(--accent); background: var(--input-pre-bg);
+    border-right: 1px solid var(--input-border); flex-shrink: 0;
+    transition: color 0.35s, background 0.35s;
+  }
+  .input-suf { border-right: none; border-left: 1px solid var(--input-border); color: var(--label); }
+
+  input[type="number"] {
+    flex: 1; min-width: 0; background: transparent; border: none; outline: none;
+    color: var(--text); font-family: 'Space Mono',monospace;
+    font-size: clamp(13px,1.1vw,16px);
+    padding: clamp(8px,1vh,11px) clamp(9px,0.9vw,13px); width: 100%;
+    transition: color 0.35s;
+  }
+  input[type="number"]::-webkit-inner-spin-button { opacity: 0.3; }
+
+  select:not(.theme-select-wrap select) {
+    width: 100%; border: 1px solid var(--input-border); border-radius: 7px;
+    background: var(--input-bg); color: var(--text);
+    cursor: pointer;
+    padding: clamp(8px,1vh,11px) clamp(28px,2.5vw,36px) clamp(8px,1vh,11px) clamp(9px,0.9vw,13px);
+    appearance: none; -webkit-appearance: none;
+    font-family: 'Space Mono',monospace; font-size: clamp(12px,1vw,15px);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23F7931A' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center;
+    outline: none; transition: border-color 0.2s, background 0.35s, color 0.35s;
+  }
+  select:not(.theme-select-wrap select):focus { border-color: var(--input-focus); }
+  select:not(.theme-select-wrap select) option { background: #1a1a1a; }
+
+  /* ── STAT BOXES ── */
+  .stat-box {
+    background: var(--stat-bg); border: 1px solid var(--stat-border);
+    border-radius: 7px; padding: clamp(10px,1.2vh,14px) clamp(12px,1.2vw,16px); margin-top: 5px;
+    transition: background 0.35s, border-color 0.35s;
+  }
+  .stat-box .stat-label { font-size: clamp(10px,0.8vw,12px); color: var(--label); font-family: 'Space Mono',monospace; }
+  .stat-box .stat-val   { font-size: clamp(20px,2vw,28px); font-weight: 700; color: var(--accent); margin-top: 2px; transition: color 0.35s; }
+  .stat-box .stat-val.white { color: var(--text); font-size: clamp(16px,1.6vw,22px); }
+
+  .use-live-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    margin-top: 5px; padding: 5px 11px;
+    border-radius: 5px; border: 1px solid rgba(var(--accent-rgb),0.35);
+    background: rgba(var(--accent-rgb),0.08); color: var(--accent);
+    font-family: 'Space Mono',monospace; font-size: clamp(9px,0.8vw,11px);
+    letter-spacing: 1px; text-transform: uppercase;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .use-live-btn:hover:not(:disabled) { background: rgba(var(--accent-rgb),0.18); border-color: var(--accent); }
+  .use-live-btn:disabled { opacity: 0.3; cursor: default; }
+
+  /* ── MILESTONE CARDS ── */
+  .milestone {
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    border-radius: 11px; padding: clamp(12px,1.4vh,16px) clamp(14px,1.4vw,20px);
+    margin-bottom: 9px; transition: all 0.2s; cursor: default;
+  }
+  .milestone:hover { border-color: var(--card-hover); transform: translateY(-2px); }
+  .milestone:last-child { margin-bottom: 0; }
+  .m-year  { font-size: clamp(10px,0.8vw,13px); color: var(--label); font-family: 'Space Mono',monospace; }
+  .m-val   { font-size: clamp(18px,1.8vw,26px); font-weight: 700; color: var(--accent); margin-top: 2px; transition: color 0.35s; }
+  .m-right { text-align: right; flex-shrink: 0; }
+  .m-btc   { font-size: clamp(12px,1.1vw,16px); font-weight: 600; color: var(--text-sub); font-family: 'Space Mono',monospace; }
+  .m-price { font-size: clamp(10px,0.8vw,12px); color: var(--text-muted); font-family: 'Space Mono',monospace; margin-top: 2px; }
+
+  /* ── CHART CARDS ── */
+  .chart-card {
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    border-radius: 12px; padding: clamp(14px,1.8vw,24px) clamp(14px,2vw,26px);
+    transition: border-color 0.2s, background 0.35s;
+    min-width: 0; overflow: hidden;
+  }
+  .chart-card:hover { border-color: var(--card-hover); }
+
+  .chart-title {
+    font-size: clamp(11px,0.9vw,13px); font-family: 'Space Mono',monospace;
+    color: var(--text); letter-spacing: 2px; text-transform: uppercase;
+    font-weight: 700; margin-bottom: 3px;
+  }
+  .chart-sub {
+    font-size: clamp(10px,0.8vw,12px); font-family: 'Space Mono',monospace;
+    color: var(--text-muted); margin-bottom: clamp(12px,1.5vh,18px); line-height: 1.5;
+  }
+
+  .canvas-wrap { position: relative; width: 100%; }
+  #chartFiat { height: clamp(180px, 22vw, 280px) !important; }
+  #chartBTC  { height: clamp(150px, 18vw, 230px) !important; }
+
+  /* ── TABLE ── */
+  .table-wrap { overflow-x: auto; width: 100%; }
+  table { width: 100%; border-collapse: collapse; font-family: 'Space Mono',monospace; font-size: clamp(11px,0.9vw,14px); }
+  thead tr { border-bottom: 1px solid var(--card-border); }
+  th {
+    text-align: left; padding: clamp(8px,1vh,11px) clamp(8px,1vw,14px);
+    color: var(--accent); font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase;
+    font-size: clamp(10px,0.8vw,12px); white-space: nowrap;
+    transition: color 0.35s;
+  }
+  td { padding: clamp(7px,0.9vh,10px) clamp(8px,1vw,14px); border-bottom: 1px solid var(--row-div); white-space: nowrap; color: var(--text-sub); }
+  tr:hover td { background: var(--row-hover); }
+  .col-year     { color: var(--text-sub) !important; }
+  .col-year.now { color: var(--accent) !important; font-weight: 700; }
+  .col-price    { color: var(--text-sub) !important; }
+  .col-btc      { color: var(--accent2) !important; }
+  .col-val      { color: var(--text) !important; font-weight: 600; }
+  .col-mult     { color: var(--text-muted) !important; }
+  .col-mult.high { color: var(--green) !important; }
+  .col-mult.mid  { color: var(--green) !important; opacity: 0.7; }
+
+  /* ── CURRENCY TOGGLE ── */
+  .currency-toggle {
+    display: flex; align-items: center;
+    border: 1px solid var(--card-border); border-radius: 20px;
+    overflow: hidden; flex-shrink: 0;
+    transition: border-color 0.2s;
+  }
+  .currency-toggle:hover { border-color: var(--accent); }
+  .cur-btn {
+    padding: clamp(6px,0.7vh,9px) clamp(10px,1vw,16px);
+    background: transparent; border: none; outline: none;
+    color: var(--label); font-family: 'Space Mono',monospace;
+    font-size: clamp(10px,0.9vw,12px); letter-spacing: 1px;
+    text-transform: uppercase; cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+  }
+  .cur-btn.active {
+    background: var(--accent); color: #fff;
+  }
+  .cur-btn:not(.active):hover { color: var(--accent); }
+  .cur-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .stat-box.price-warning {
+    background: rgba(220,38,38,0.1) !important;
+    border-color: rgba(220,38,38,0.5) !important;
+    cursor: pointer !important;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  }
+  .stat-box.price-warning:hover {
+    background: rgba(220,38,38,0.18) !important;
+    border-color: rgba(220,38,38,0.75) !important;
+    transform: translateY(-1px);
+  }
+  .stat-box.price-warning .stat-label { color: #ef4444 !important; }
+  .stat-box.price-warning .stat-val   { color: #ef4444 !important; font-size: clamp(13px,1.2vw,16px) !important; line-height: 1.4; }
+  .stat-box.price-warning .warning-hint {
+    font-size: clamp(9px,0.75vw,11px); color: rgba(239,68,68,0.75);
+    font-family: 'Space Mono',monospace; margin-top: 4px; letter-spacing: 0.5px;
+  }
+  ::-webkit-scrollbar-track { background: var(--bg2); }
+  ::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 2px; }
+</style>
+</head>
+<body data-theme="light">
+<div class="wrapper">
+
+  <!-- LIVE TICKER BAR -->
+  <div class="ticker-bar" id="tickerBar">
+    <div class="ticker-loading"><div class="spinner"></div>Fetching live BTC prices…</div>
+  </div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-left">
+      <div class="logo">₿</div>
+      <div>
+        <h1>Bitcoin Portfolio Tracker</h1>
+        <p>Stack sats. Watch it grow.</p>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <!-- CURRENCY TOGGLE -->
+      <div class="currency-toggle">
+        <button class="cur-btn active" id="btnUSD" onclick="setCurrency('USD')">🇺🇸 USD</button>
+        <button class="cur-btn"        id="btnAUD" onclick="setCurrency('AUD')" disabled title="Loading live rate…">🇦🇺 AUD</button>
+      </div>
+
+      <!-- THEME SELECTOR -->
+      <div class="theme-select-wrap">
+        <span class="theme-icon">🎨</span>
+        <select id="themeSelect" onchange="applyTheme(this.value)">
+          <option value="digital">Digital</option>
+          <option value="bitcoin">Bitcoin</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark Mode</option>
+          <option value="matrix">Matrix</option>
+          <option value="purple">Midnight</option>
+          <option value="gold">Gold / Luxury</option>
+        </select>
+      </div>
+
+      <button class="refresh-btn" onclick="fetchLivePrice()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M23 4v6h-6M1 20v-6h6"/>
+          <path d="M3.51 9a9 9 0 0114.36-3.36L23 10M1 14l5.13 4.36A9 9 0 0020.49 15"/>
+        </svg>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- LEFT PANEL -->
+    <div class="left">
+
+      <div class="card">
+        <div class="card-title">Current Holdings</div>
+        <div class="field">
+          <label>Bitcoin Amount</label>
+          <div class="input-wrap">
+            <span class="input-pre">₿</span>
+            <input type="number" id="btcAmount" value="0.5" step="0.00000001" min="0" oninput="recalc()" />
+          </div>
+        </div>
+        <div class="field">
+          <label>BTC Price (USD) — projection basis</label>
+          <div class="input-wrap">
+            <span class="input-pre">$</span>
+            <input type="number" id="btcPrice" value="95000" step="100" min="1" oninput="onPriceInput()" />
+          </div>
+        </div>
+        <div id="priceStatusBox" class="stat-box" onclick="restoreLivePrice()" style="cursor:default">
+          <div class="stat-label" id="priceStatusLabel">Current Value</div>
+          <div class="stat-val" id="currentVal">—</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Growth Assumptions</div>
+        <div class="field">
+          <label>Expected Annual Return (CAGR)</label>
+          <div class="input-wrap">
+            <input type="number" id="cagr" value="30" step="0.5" min="0" max="1000" oninput="recalc()" />
+            <span class="input-suf">% / yr</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Projection Period</label>
+          <div class="input-wrap">
+            <input type="number" id="projYears" value="30" step="1" min="1" max="100" oninput="recalc()" />
+            <span class="input-suf">years</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Recurring Purchases</div>
+        <div class="field">
+          <label>Frequency</label>
+          <select id="freq" onchange="toggleDCA()">
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="none">No Recurring</option>
+          </select>
+        </div>
+        <div id="dcaAmountWrap" class="field">
+          <label id="dcaLabel">Amount per Week</label>
+          <div class="input-wrap">
+            <span class="input-pre">$</span>
+            <input type="number" id="dcaAmount" value="100" step="10" min="0" oninput="recalc()" />
+          </div>
+        </div>
+        <div id="dcaStatBox" class="stat-box">
+          <div class="stat-label">Annual DCA</div>
+          <div class="stat-val white" id="annualDCA">$5,200 / yr</div>
+        </div>
+      </div>
+
+      <div id="milestones"></div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right">
+      <div class="chart-card">
+        <div class="chart-title">Portfolio Value (USD)</div>
+        <div class="chart-sub" id="chartSubFiat"></div>
+        <div class="canvas-wrap"><canvas id="chartFiat"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">BTC Stack Growth</div>
+        <div class="chart-sub" id="chartSubBTC"></div>
+        <div class="canvas-wrap"><canvas id="chartBTC"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Year-by-Year Breakdown</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Year</th><th>BTC Price</th><th>BTC Stack</th><th>Portfolio Value</th><th>vs Today</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let chartFiat    = null;
+  let chartBTC     = null;
+  let livePriceUSD = null;
+  let liveAudRate  = null;   // AUD per 1 USD (e.g. 1.55)
+  let usingLivePrice = false;
+  let currency = 'USD';      // 'USD' or 'AUD'
+
+  /* ── Theme system ── */
+  const THEMES = {
+    digital: { accent: '#F7931A', accent2: '#FFD700', gridLine: 'rgba(255,255,255,0.04)', tick: '#4a4a4a', tooltipBg: '#111111' },
+    bitcoin: { accent: '#F7931A', accent2: '#FF6B00', gridLine: 'rgba(247,147,26,0.06)', tick: '#885522', tooltipBg: '#0a0500' },
+    light:   { accent: '#e67e00', accent2: '#c45d00', gridLine: 'rgba(0,0,0,0.06)',       tick: '#888888', tooltipBg: '#ffffff' },
+    dark:    { accent: '#4fc3f7', accent2: '#00e5ff', gridLine: 'rgba(79,195,247,0.05)',  tick: '#2a5570', tooltipBg: '#050d1a' },
+    matrix:  { accent: '#00ff41', accent2: '#00cc33', gridLine: 'rgba(0,255,65,0.06)',    tick: '#006615', tooltipBg: '#000300' },
+    purple:  { accent: '#bb86fc', accent2: '#ff79c6', gridLine: 'rgba(187,134,252,0.05)', tick: '#4d2a80', tooltipBg: '#0d0717' },
+    gold:    { accent: '#c9a84c', accent2: '#e8c878', gridLine: 'rgba(201,168,76,0.05)',  tick: '#5a4820', tooltipBg: '#0e0c08' },
+  };
+
+  let currentTheme = 'light';
+
+  function applyTheme(name) {
+    currentTheme = name;
+    document.body.setAttribute('data-theme', name);
+    localStorage.setItem('btc-theme', name);
+    // Rebuild charts with new colours
+    const { rows } = buildData();
+    updateCharts(rows);
+  }
+
+  function getTheme() { return THEMES[currentTheme] || THEMES.default; }
+
+  /* ── Formatting ── */
+  function fmt(n, pre = '$') {
+    if (n >= 1e12) return pre + (n/1e12).toFixed(2) + 'T';
+    if (n >= 1e9)  return pre + (n/1e9).toFixed(2)  + 'B';
+    if (n >= 1e6)  return pre + (n/1e6).toFixed(2)  + 'M';
+    if (n >= 1e3)  return pre + (n/1e3).toFixed(1)  + 'K';
+    return pre + n.toFixed(2);
+  }
+  function fmtComma(n) { return n.toLocaleString('en-US', { minimumFractionDigits:0, maximumFractionDigits:0 }); }
+  function fmtBTC(n)   { return n >= 1 ? '₿' + n.toFixed(4) : '₿' + n.toFixed(8); }
+
+  /* ── Currency helpers ── */
+  function fiatRate()   { return (currency === 'AUD' && liveAudRate) ? liveAudRate : 1; }
+  function fiatSymbol() { return currency === 'AUD' ? 'A$' : '$'; }
+  function fiatLabel()  { return currency; }
+
+  function setCurrency(cur) {
+    currency = cur;
+    document.getElementById('btnUSD').classList.toggle('active', cur === 'USD');
+    document.getElementById('btnAUD').classList.toggle('active', cur === 'AUD');
+    updatePriceStatusBox();
+    recalc();
+  }
+
+  // Override fmt to always use current currency prefix
+  function fmtC(n) { return fmt(n * fiatRate(), fiatSymbol()); }
+  async function fetchLivePrice() {
+    const bar = document.getElementById('tickerBar');
+    bar.innerHTML = `<div class="ticker-loading"><div class="spinner"></div>Fetching live BTC prices…</div>`;
+    try {
+      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,aud&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true');
+      if (!res.ok) throw new Error('Non-200');
+      const data = await res.json();
+      const b = data.bitcoin;
+      livePriceUSD = b.usd;
+      liveAudRate  = b.aud / b.usd;   // store AUD/USD rate
+
+      // Enable the AUD toggle now we have the rate
+      const audBtn = document.getElementById('btnAUD');
+      audBtn.disabled = false;
+      audBtn.title = '';
+
+      document.getElementById('btcPrice').value = livePriceUSD;
+      usingLivePrice = true;
+      updatePriceStatusBox();
+      recalc();
+
+      const cc  = v => v >= 0 ? 'up' : 'down';
+      const ar  = v => v >= 0 ? '▲' : '▼';
+      const now = new Date().toLocaleTimeString('en-AU', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+      const audPerUsd = b.aud / b.usd;
+
+      bar.innerHTML = `
+        <div class="ticker-item">
+          <div class="ticker-flag usd">🇺🇸</div>
+          <div class="ticker-info">
+            <div class="ticker-label">BTC / USD</div>
+            <div class="ticker-price">$${fmtComma(b.usd)}</div>
+            <div class="ticker-change ${cc(b.usd_24h_change)}">${ar(b.usd_24h_change)} ${Math.abs(b.usd_24h_change).toFixed(2)}% 24h</div>
+          </div>
+        </div>
+        <div class="ticker-item">
+          <div class="ticker-flag aud">🇦🇺</div>
+          <div class="ticker-info">
+            <div class="ticker-label">BTC / AUD</div>
+            <div class="ticker-price">A$${fmtComma(b.aud)}</div>
+            <div class="ticker-change ${cc(b.aud_24h_change)}">${ar(b.aud_24h_change)} ${Math.abs(b.aud_24h_change).toFixed(2)}% 24h</div>
+          </div>
+        </div>
+        <div class="ticker-item">
+          <div class="ticker-info">
+            <div class="ticker-label">Market Cap</div>
+            <div class="ticker-price" style="font-size:clamp(13px,1.3vw,17px)">${fmt(b.usd_market_cap)}</div>
+            <div class="ticker-change" style="color:var(--text-muted)">USD</div>
+          </div>
+        </div>
+        <div class="ticker-item">
+          <div class="ticker-info">
+            <div class="ticker-label">24h Volume</div>
+            <div class="ticker-price" style="font-size:clamp(13px,1.3vw,17px)">${fmt(b.usd_24h_vol)}</div>
+            <div class="ticker-change" style="color:var(--text-muted)">USD</div>
+          </div>
+        </div>
+        <div class="ticker-item">
+          <div class="ticker-info">
+            <div class="ticker-label">USD → AUD</div>
+            <div class="ticker-price" style="font-size:clamp(13px,1.3vw,17px)">1.00 = A$${audPerUsd.toFixed(4)}</div>
+          </div>
+        </div>
+        <div class="ticker-live">
+          <div class="ticker-dot"></div>
+          LIVE · ${now}
+        </div>
+      `;
+
+    } catch(e) {
+      bar.innerHTML = `<div class="ticker-loading" style="color:#ff6b6b">⚠ Could not load live data. <button class="refresh-btn" onclick="fetchLivePrice()" style="margin-left:10px">Retry</button></div>`;
+    }
+  }
+
+  function useLivePrice() {
+    if (!livePriceUSD) return;
+    document.getElementById('btcPrice').value = livePriceUSD;
+    usingLivePrice = true;
+    updatePriceStatusBox();
+    recalc();
+  }
+
+  function restoreLivePrice() {
+    if (!livePriceUSD) return;
+    useLivePrice();
+  }
+
+  // Called whenever user manually edits the price field
+  function onPriceInput() {
+    if (livePriceUSD) {
+      const entered = parseFloat(document.getElementById('btcPrice').value);
+      usingLivePrice = (entered === livePriceUSD);
+    }
+    updatePriceStatusBox();
+    recalc();
+  }
+
+  function updatePriceStatusBox() {
+    const box   = document.getElementById('priceStatusBox');
+    const label = document.getElementById('priceStatusLabel');
+    const val   = document.getElementById('currentVal');
+
+    if (!usingLivePrice && livePriceUSD !== null) {
+      box.classList.add('price-warning');
+      box.style.cursor = 'pointer';
+      label.textContent = '⚠ Not using live price';
+      val.innerHTML = `NOT LIVE — price manually set<span class="warning-hint">Click here to restore live price (${fmtC(livePriceUSD)})</span>`;
+    } else {
+      box.classList.remove('price-warning');
+      box.style.cursor = 'default';
+      label.textContent = 'Current Value';
+      val.innerHTML = val.textContent || '—';
+    }
+  }
+
+  /* ── DCA toggle ── */
+  function toggleDCA() {
+    const freq    = document.getElementById('freq').value;
+    const wrap    = document.getElementById('dcaAmountWrap');
+    const statBox = document.getElementById('dcaStatBox');
+    const label   = document.getElementById('dcaLabel');
+    if (freq === 'none') { wrap.style.display = 'none'; statBox.style.display = 'none'; }
+    else { wrap.style.display = 'flex'; statBox.style.display = 'block'; label.textContent = freq === 'weekly' ? 'Amount per Week' : 'Amount per Month'; }
+    recalc();
+  }
+
+  /* ── Simulation ── */
+  function buildData() {
+    const btcAmount  = parseFloat(document.getElementById('btcAmount').value)  || 0;
+    const startPrice = parseFloat(document.getElementById('btcPrice').value)   || 95000;
+    const cagr       = parseFloat(document.getElementById('cagr').value)       || 0;
+    const years      = Math.max(1, parseInt(document.getElementById('projYears').value) || 30);
+    const freq       = document.getElementById('freq').value;
+    const dcaAmt     = parseFloat(document.getElementById('dcaAmount').value)  || 0;
+
+    const annualGrowth   = cagr / 100;
+    const periodsPerYear = freq === 'weekly' ? 52 : freq === 'monthly' ? 12 : 0;
+    const periodGrowth   = periodsPerYear > 0 ? Math.pow(1 + annualGrowth, 1/periodsPerYear) - 1 : 0;
+
+    const snapshots = [];
+    let btcStack = btcAmount, periodPrice = startPrice;
+    snapshots.push({ year: 0, price: startPrice, btcStack, totalFiat: btcStack * startPrice });
+
+    if (periodsPerYear > 0) {
+      const total = years * periodsPerYear;
+      for (let p = 1; p <= total; p++) {
+        periodPrice *= (1 + periodGrowth);
+        btcStack    += dcaAmt / periodPrice;
+        if (p % periodsPerYear === 0)
+          snapshots.push({ year: p/periodsPerYear, price: periodPrice, btcStack, totalFiat: btcStack * periodPrice });
+      }
+    } else {
+      for (let y = 1; y <= years; y++) {
+        const price = startPrice * Math.pow(1 + annualGrowth, y);
+        snapshots.push({ year: y, price, btcStack, totalFiat: btcStack * price });
+      }
+    }
+    return { rows: snapshots };
+  }
+
+  /* ── Recalc ── */
+  function recalc() {
+    const btcAmount = parseFloat(document.getElementById('btcAmount').value)  || 0;
+    const btcPrice  = parseFloat(document.getElementById('btcPrice').value)   || 95000;
+    const cagr      = parseFloat(document.getElementById('cagr').value)       || 0;
+    const years     = Math.max(1, parseInt(document.getElementById('projYears').value) || 30);
+    const freq      = document.getElementById('freq').value;
+    const dcaAmt    = parseFloat(document.getElementById('dcaAmount').value)  || 0;
+
+    if (!usingLivePrice && livePriceUSD !== null) {
+      // Don't overwrite the warning text — just keep projections updated
+    } else {
+      document.getElementById('currentVal').textContent = fmtC(btcAmount * btcPrice);
+    }
+
+    if (freq !== 'none') {
+      const annual = freq === 'weekly' ? dcaAmt * 52 : dcaAmt * 12;
+      document.getElementById('annualDCA').textContent = fmtC(annual) + ' / yr';
+    }
+
+    const freqLabel = freq === 'weekly'  ? `weekly DCA of ${fmtC(dcaAmt)} — each purchase at that week's price`
+                    : freq === 'monthly' ? `monthly DCA of ${fmtC(dcaAmt)} — each purchase at that month's price`
+                    : 'no recurring purchases';
+
+    document.getElementById('chartSubFiat').textContent = `${years}-year projection at ${cagr}% CAGR · ${freqLabel}`;
+    document.getElementById('chartSubBTC').textContent  = freq !== 'none'
+      ? `Each ${freq === 'weekly' ? 'week' : 'month'} you buy fewer sats as price rises`
+      : 'Stack stays constant — no DCA';
+
+    // Update chart title to reflect active currency
+    document.querySelector('.chart-title').textContent = `Portfolio Value (${fiatLabel()})`;
+
+    const { rows } = buildData();
+    updateCharts(rows);
+    updateMilestones(rows, years);
+    updateTable(rows, btcAmount * btcPrice, years);
+  }
+
+  /* ── Chart options (reads current theme vars) ── */
+  function chartOptions(accentColor, fmtFn) {
+    const t = getTheme();
+    return {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: t.tooltipBg, borderColor: accentColor + '88', borderWidth: 1,
+          titleColor: accentColor, bodyColor: '#bbb', padding: 12,
+          titleFont: { family: 'Space Mono, monospace', size: 12 },
+          bodyFont:  { family: 'Space Mono, monospace', size: 12 },
+          callbacks: { label: ctx => '  ' + fmtFn(ctx.raw) }
+        }
+      },
+      scales: {
+        x: { grid: { color: t.gridLine }, ticks: { color: t.tick, font: { family: 'Space Mono, monospace', size: 11 }, maxTicksLimit: 10 } },
+        y: { grid: { color: t.gridLine }, ticks: { color: t.tick, font: { family: 'Space Mono, monospace', size: 11 }, callback: fmtFn } }
+      }
+    };
+  }
+
+  /* ── Charts ── */
+  function updateCharts(rows) {
+    const t = getTheme();
+    const labels   = rows.map(r => r.year === 0 ? 'Now' : 'Yr ' + r.year);
+    const fiatVals = rows.map(r => r.totalFiat);
+    const btcVals  = rows.map(r => r.btcStack);
+
+    if (chartFiat) { chartFiat.destroy(); chartFiat = null; }
+    const ctxF  = document.getElementById('chartFiat').getContext('2d');
+    const gradF = ctxF.createLinearGradient(0, 0, 0, 300);
+    gradF.addColorStop(0, t.accent + '6a');
+    gradF.addColorStop(1, t.accent + '03');
+    chartFiat = new Chart(ctxF, {
+      type: 'line',
+      data: { labels, datasets: [{
+        data: fiatVals, borderColor: t.accent, borderWidth: 2.5,
+        backgroundColor: gradF, fill: true, tension: 0.4,
+        pointRadius: 0, pointHoverRadius: 5,
+        pointHoverBackgroundColor: t.accent, pointHoverBorderColor: '#fff', pointHoverBorderWidth: 2
+      }]},
+      options: chartOptions(t.accent, v => fmtC(v))
+    });
+
+    if (chartBTC) { chartBTC.destroy(); chartBTC = null; }
+    const ctxB  = document.getElementById('chartBTC').getContext('2d');
+    const gradB = ctxB.createLinearGradient(0, 0, 0, 240);
+    gradB.addColorStop(0, t.accent2 + '59');
+    gradB.addColorStop(1, t.accent2 + '03');
+    chartBTC = new Chart(ctxB, {
+      type: 'line',
+      data: { labels, datasets: [{
+        data: btcVals, borderColor: t.accent2, borderWidth: 2.5,
+        backgroundColor: gradB, fill: true, tension: 0.4,
+        pointRadius: 0, pointHoverRadius: 5,
+        pointHoverBackgroundColor: t.accent2, pointHoverBorderColor: '#fff', pointHoverBorderWidth: 2
+      }]},
+      options: chartOptions(t.accent2, v => '₿' + v.toFixed(2))
+    });
+  }
+
+  /* ── Milestones ── */
+  function updateMilestones(rows, totalYears) {
+    const step = totalYears <= 4 ? 1 : totalYears <= 10 ? Math.ceil(totalYears/4) : totalYears <= 20 ? 5 : 10;
+    const targets = [];
+    for (let y = step; y <= totalYears; y += step) targets.push(y);
+    if (!targets.includes(totalYears)) targets.push(totalYears);
+    const unique = [...new Set(targets)].slice(0, 4);
+    const container = document.getElementById('milestones');
+    container.innerHTML = '';
+    unique.forEach(y => {
+      const row = rows.find(r => r.year === y);
+      if (!row) return;
+      container.innerHTML += `
+        <div class="milestone">
+          <div>
+            <div class="m-year">${y} YEAR${y !== 1 ? 'S' : ''}</div>
+            <div class="m-val">${fmtC(row.totalFiat)}</div>
+          </div>
+          <div class="m-right">
+            <div class="m-btc">${fmtBTC(row.btcStack)}</div>
+            <div class="m-price">@ ${fmtC(row.price)}/BTC</div>
+          </div>
+        </div>`;
+    });
+  }
+
+  /* ── Table ── */
+  function updateTable(rows, todayVal, totalYears) {
+    const filtered = rows.filter(r => totalYears <= 20 ? true : (r.year <= 10 || r.year % 2 === 0));
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+    filtered.forEach(row => {
+      const mult    = row.totalFiat / (todayVal || 1);
+      const multStr = row.year === 0 ? '—' : mult.toFixed(1) + '×';
+      const mCls    = mult >= 100 ? 'col-mult high' : mult >= 10 ? 'col-mult mid' : 'col-mult';
+      const yCls    = 'col-year' + (row.year === 0 ? ' now' : '');
+      tbody.innerHTML += `
+        <tr>
+          <td class="${yCls}">${row.year === 0 ? 'Now' : 'Yr ' + row.year}</td>
+          <td class="col-price">${fmtC(row.price)}</td>
+          <td class="col-btc">${fmtBTC(row.btcStack)}</td>
+          <td class="col-val">${fmtC(row.totalFiat)}</td>
+          <td class="${mCls}">${multStr}</td>
+        </tr>`;
+    });
+  }
+
+  /* ── ResizeObserver: fix chart grow on window expand ── */
+  function attachResizeObserver() {
+    if (!window.ResizeObserver) return;
+    const obs = new ResizeObserver(() => {
+      requestAnimationFrame(() => {
+        if (chartFiat) chartFiat.resize();
+        if (chartBTC)  chartBTC.resize();
+      });
+    });
+    const wF = document.getElementById('chartFiat').closest('.canvas-wrap');
+    const wB = document.getElementById('chartBTC').closest('.canvas-wrap');
+    if (wF) obs.observe(wF);
+    if (wB) obs.observe(wB);
+  }
+
+  /* ── Boot ── */
+  // Restore saved theme, defaulting to light
+  const savedTheme = localStorage.getItem('btc-theme') || 'light';
+  document.body.setAttribute('data-theme', savedTheme);
+  document.getElementById('themeSelect').value = savedTheme;
+  currentTheme = savedTheme;
+
+  recalc();
+  fetchLivePrice();
+  setInterval(fetchLivePrice, 60000);
+  attachResizeObserver();
+</script>
+</body>
+</html>
