@@ -559,7 +559,36 @@
   .col-mult.high { color: var(--green) !important; }
   .col-mult.mid  { color: var(--green) !important; opacity: 0.7; }
 
-  /* ── CURRENCY TOGGLE ── */
+  /* ── FUN FACTS ── */
+  .fun-fact {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: clamp(10px,1.2vh,14px) 0;
+    border-bottom: 1px solid var(--row-div);
+  }
+  .fun-fact:last-child { border-bottom: none; padding-bottom: 0; }
+  .fun-fact:first-child { padding-top: 0; }
+  .ff-icon {
+    font-size: 20px; flex-shrink: 0; margin-top: 1px;
+    width: 28px; text-align: center;
+  }
+  .ff-body { flex: 1; min-width: 0; }
+  .ff-label {
+    font-size: clamp(10px,0.85vw,12px); font-family: 'Space Mono', monospace;
+    color: var(--label); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 3px;
+  }
+  .ff-value {
+    font-size: clamp(16px,1.6vw,22px); font-weight: 700;
+    color: var(--accent); font-family: 'Space Mono', monospace;
+    transition: color 0.35s;
+  }
+  .ff-sub {
+    font-size: clamp(10px,0.85vw,12px); color: var(--text-muted);
+    font-family: 'Space Mono', monospace; margin-top: 2px; line-height: 1.4;
+  }
+  .ff-na {
+    font-size: clamp(13px,1.2vw,16px); color: var(--text-muted);
+    font-family: 'Space Mono', monospace; font-style: italic;
+  }
   .currency-toggle {
     display: flex; align-items: center;
     border: 1px solid var(--card-border); border-radius: 20px;
@@ -719,6 +748,12 @@
       </div>
 
       <div id="milestones"></div>
+
+      <!-- FUN FACTS -->
+      <div class="card" id="funFactsCard">
+        <div class="card-title">⚡ Fun Facts</div>
+        <div id="funFacts"></div>
+      </div>
     </div>
 
     <!-- RIGHT PANEL -->
@@ -815,60 +850,72 @@
     const bar = document.getElementById('tickerBar');
     bar.innerHTML = `<div class="ticker-loading"><div class="spinner"></div>Fetching live BTC prices…</div>`;
     try {
-      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,aud&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true');
-      if (!res.ok) throw new Error('Non-200');
-      const data = await res.json();
-      const b = data.bitcoin;
-      livePriceUSD = b.usd;
-      liveAudRate  = b.aud / b.usd;   // store AUD/USD rate
+      // Fetch BTC/USDT from Binance and USD→AUD rate in parallel
+      const [binanceRes, fxRes] = await Promise.all([
+        fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT'),
+        fetch('https://open.er-api.com/v6/latest/USD')
+      ]);
+      if (!binanceRes.ok || !fxRes.ok) throw new Error('Non-200');
+
+      const binance = await binanceRes.json();
+      const fx      = await fxRes.json();
+
+      const btcUsd     = parseFloat(binance.lastPrice);
+      const audPerUsd  = fx.rates.AUD;
+      const btcAud     = btcUsd * audPerUsd;
+      const change24h  = parseFloat(binance.priceChangePercent);
+      const vol24h     = parseFloat(binance.quoteVolume);   // in USD
+      // Market cap not available from Binance — estimate from circulating supply (~19.8M BTC)
+      const marketCap  = btcUsd * 19800000;
+
+      livePriceUSD = btcUsd;
+      liveAudRate  = audPerUsd;
 
       // Enable the AUD toggle now we have the rate
       const audBtn = document.getElementById('btnAUD');
       audBtn.disabled = false;
       audBtn.title = '';
 
-      document.getElementById('btcPrice').value = livePriceUSD;
+      document.getElementById('btcPrice').value = Math.round(livePriceUSD);
       usingLivePrice = true;
       updatePriceStatusBox();
       recalc();
 
       const cc  = v => v >= 0 ? 'up' : 'down';
       const ar  = v => v >= 0 ? '▲' : '▼';
-      // Build time string with timezone abbreviation
       const tzName = new Intl.DateTimeFormat('en-AU', { timeZoneName: 'short' })
         .formatToParts(new Date())
         .find(p => p.type === 'timeZoneName')?.value || '';
       const now = new Date().toLocaleTimeString('en-AU', { hour:'2-digit', minute:'2-digit', second:'2-digit' }) + ' ' + tzName;
-      const audPerUsd = b.aud / b.usd;
 
       bar.innerHTML = `
         <div class="ticker-item">
           <div class="ticker-flag usd">🇺🇸</div>
           <div class="ticker-info">
             <div class="ticker-label">BTC / USD</div>
-            <div class="ticker-price">$${fmtComma(b.usd)}</div>
-            <div class="ticker-change ${cc(b.usd_24h_change)}">${ar(b.usd_24h_change)} ${Math.abs(b.usd_24h_change).toFixed(2)}% 24h</div>
+            <div class="ticker-price">$${fmtComma(Math.round(btcUsd))}</div>
+            <div class="ticker-change ${cc(change24h)}">${ar(change24h)} ${Math.abs(change24h).toFixed(2)}% 24h</div>
           </div>
         </div>
         <div class="ticker-item">
           <div class="ticker-flag aud">🇦🇺</div>
           <div class="ticker-info">
             <div class="ticker-label">BTC / AUD</div>
-            <div class="ticker-price">A$${fmtComma(b.aud)}</div>
-            <div class="ticker-change ${cc(b.aud_24h_change)}">${ar(b.aud_24h_change)} ${Math.abs(b.aud_24h_change).toFixed(2)}% 24h</div>
+            <div class="ticker-price">A$${fmtComma(Math.round(btcAud))}</div>
+            <div class="ticker-change ${cc(change24h)}">${ar(change24h)} ${Math.abs(change24h).toFixed(2)}% 24h</div>
           </div>
         </div>
         <div class="ticker-item">
           <div class="ticker-info">
             <div class="ticker-label">Market Cap</div>
-            <div class="ticker-price" style="font-size:clamp(13px,1.3vw,17px)">${fmt(b.usd_market_cap)}</div>
+            <div class="ticker-price" style="font-size:clamp(13px,1.3vw,17px)">${fmt(marketCap)}</div>
             <div class="ticker-change" style="color:var(--text-muted)">USD</div>
           </div>
         </div>
         <div class="ticker-item">
           <div class="ticker-info">
             <div class="ticker-label">24h Volume</div>
-            <div class="ticker-price" style="font-size:clamp(13px,1.3vw,17px)">${fmt(b.usd_24h_vol)}</div>
+            <div class="ticker-price" style="font-size:clamp(13px,1.3vw,17px)">${fmt(vol24h)}</div>
             <div class="ticker-change" style="color:var(--text-muted)">USD</div>
           </div>
         </div>
@@ -955,7 +1002,10 @@
     const cagr       = parseFloat(document.getElementById('cagr').value)       || 0;
     const years      = Math.max(1, parseInt(document.getElementById('projYears').value) || 30);
     const freq       = document.getElementById('freq').value;
-    const dcaAmt     = parseFloat(document.getElementById('dcaAmount').value)  || 0;
+    const dcaAmtRaw  = parseFloat(document.getElementById('dcaAmount').value)  || 0;
+
+    // DCA input is in the selected currency — convert to USD for BTC purchase calculation
+    const dcaAmtUSD  = dcaAmtRaw / fiatRate();
 
     const annualGrowth   = cagr / 100;
     const periodsPerYear = freq === 'weekly' ? 52 : freq === 'monthly' ? 12 : 0;
@@ -969,7 +1019,7 @@
       const total = years * periodsPerYear;
       for (let p = 1; p <= total; p++) {
         periodPrice *= (1 + periodGrowth);
-        btcStack    += dcaAmt / periodPrice;
+        btcStack    += dcaAmtUSD / periodPrice;
         if (p % periodsPerYear === 0)
           snapshots.push({ year: p/periodsPerYear, price: periodPrice, btcStack, totalFiat: btcStack * periodPrice });
       }
@@ -999,12 +1049,13 @@
 
     if (freq !== 'none') {
       const annual = freq === 'weekly' ? dcaAmt * 52 : dcaAmt * 12;
-      document.getElementById('annualDCA').textContent = fmtC(annual) + ' / yr';
+      // dcaAmt is already in the selected currency — just format with the right symbol, no rate conversion
+      document.getElementById('annualDCA').textContent = fmt(annual, fiatSymbol()) + ' / yr';
       document.getElementById('dcaLabel').textContent = dcaLabelText(freq);
     }
 
-    const freqLabel = freq === 'weekly'  ? `weekly DCA of ${fmtC(dcaAmt)} — each purchase at that week's price`
-                    : freq === 'monthly' ? `monthly DCA of ${fmtC(dcaAmt)} — each purchase at that month's price`
+    const freqLabel = freq === 'weekly'  ? `weekly DCA of ${fmt(dcaAmt, fiatSymbol())} — each purchase at that week's price`
+                    : freq === 'monthly' ? `monthly DCA of ${fmt(dcaAmt, fiatSymbol())} — each purchase at that month's price`
                     : 'no recurring purchases';
 
     document.getElementById('chartSubFiat').textContent = `${years}-year projection at ${cagr}% CAGR · ${freqLabel}`;
@@ -1019,6 +1070,7 @@
     updateCharts(rows);
     updateMilestones(rows, years);
     updateTable(rows, btcAmount * btcPrice, years);
+    updateFunFacts(btcPrice, cagr);
   }
 
   /* ── Chart options (reads current theme vars) ── */
@@ -1131,7 +1183,76 @@
     });
   }
 
-  /* ── ResizeObserver: fix chart grow on window expand ── */
+  /* ── Fun Facts ── */
+  function updateFunFacts(btcPriceUSD, cagrPct) {
+    const cagr        = cagrPct / 100;
+    const now         = new Date();
+    const currentYear = now.getFullYear() + (now.getMonth() / 12);
+
+    // Helper: years from now until BTC hits targetPrice at given CAGR
+    function yearsTo(targetPrice) {
+      if (cagr <= 0 || btcPriceUSD <= 0) return null;
+      return Math.log(targetPrice / btcPriceUSD) / Math.log(1 + cagr);
+    }
+
+    // Helper: format a fractional year offset into a calendar date string
+    function yearToDate(yearsAhead) {
+      if (yearsAhead === null || yearsAhead < 0) return null;
+      const d = new Date();
+      d.setFullYear(d.getFullYear() + Math.floor(yearsAhead));
+      d.setMonth(d.getMonth() + Math.round((yearsAhead % 1) * 12));
+      return d.toLocaleDateString('en-AU', { month: 'short', year: 'numeric' });
+    }
+
+    // ── Fact 1: $1M Bitcoin ──
+    const yrs1M    = yearsTo(1_000_000);
+    const date1M   = yearToDate(yrs1M);
+
+    // ── Fact 2: Dollar-Sat Parity (1 sat = $0.01 USD → 1 BTC = $1,000,000) ──
+    // Actually 1 sat = $1 means 1 BTC = $100,000,000
+    const yrsSatParity  = yearsTo(100_000_000);
+    const dateSatParity = yearToDate(yrsSatParity);
+
+    // ── Fact 3: 99% of BTC mined ──
+    // Bitcoin halving schedule — 99% mined at roughly block 6,929,999
+    // Each halving ~4 years; 99% mined ≈ year 2035 based on halving schedule
+    // More precisely: last sat from the ~6.93M block era, estimated ~Jan 2035
+    // We use a fixed known estimate based on halving math
+    const ninetyNinePctDate = 'Jan 2035';
+    const ninetyNinePctNote = '~block 6,930,000 · final 1% takes ~117 years';
+
+    const container = document.getElementById('funFacts');
+
+    function factRow(icon, label, valueHtml, sub) {
+      return `
+        <div class="fun-fact">
+          <div class="ff-icon">${icon}</div>
+          <div class="ff-body">
+            <div class="ff-label">${label}</div>
+            <div class="ff-value">${valueHtml}</div>
+            ${sub ? `<div class="ff-sub">${sub}</div>` : ''}
+          </div>
+        </div>`;
+    }
+
+    container.innerHTML =
+      factRow('💰', '$1M Bitcoin',
+        date1M
+          ? date1M + (yrs1M ? ` <span style="font-size:0.65em;opacity:0.6">(${yrs1M.toFixed(1)} yrs)</span>` : '')
+          : `<span class="ff-na">Set a CAGR &gt; 0 to estimate</span>`,
+        date1M ? `At ${cagrPct}% CAGR from current price` : null
+      ) +
+      factRow('⚡', '1 sat = $1 USD',
+        dateSatParity
+          ? dateSatParity + (yrsSatParity ? ` <span style="font-size:0.65em;opacity:0.6">(${yrsSatParity.toFixed(1)} yrs)</span>` : '')
+          : `<span class="ff-na">Set a CAGR &gt; 0 to estimate</span>`,
+        dateSatParity ? `Requires 1 BTC = $100,000,000` : null
+      ) +
+      factRow('⛏️', '99% supply mined',
+        ninetyNinePctDate,
+        ninetyNinePctNote
+      );
+  }
   function attachResizeObserver() {
     if (!window.ResizeObserver) return;
     const obs = new ResizeObserver(() => {
